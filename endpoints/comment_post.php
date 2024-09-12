@@ -1,34 +1,45 @@
 <?php 
 
-function api_photo_delete($request) {
+function api_comment_post($request) {
   $post_id = $request['id'];
   $user = wp_get_current_user();
   $user_id = $user->ID;
-  $post = get_post($post_id);
-  $author_id = (int) $post->post_author;
+  
 
-  if($user_id !== $author_id || !isset($post)) {
+  if($user_id === 0 ) {
     $response = new WP_Error('error', 'Sem permissão.', ['status' => 401]);
     return rest_ensure_response($response);
   }
 
+  $comment = sanitize_text_field($request['comment']);
 
-  $attachment_id = get_post_meta($post_id, 'img', true);
-  wp_delete_attachment( $attachment_id , true);
-  wp_delete_post($post_id, true);
+  if(empty($comment)) {
+    $response = new WP_Error('error', 'Dados incompletos.', ['status' => 422]);
+    return rest_ensure_response($response);
+  }
 
+  $response = [
+    'comment_author' => $user->user_login,
+    'comment_content' => $comment,
+    'comment_post_ID' => $post_id,
+    'user_id' => $user_id,
+  ];
 
-  return rest_ensure_response('post deletado');
+  $comment_id = wp_insert_comment($response);
+  $comment = get_comment($comment_id);
+
+  return rest_ensure_response($comment);
+
 }
 
-function register_api_photo_delete() {
-  register_rest_route('api', '/photo/(?P<id>[0-9]+)',[
-    'methods' => 'DELETE',
-    'callback' => 'api_photo_delete',
+function register_api_comment_post() {
+  register_rest_route('api', '/comment/(?P<id>[0-9]+)',[
+    'methods' => 'POST',
+    'callback' => 'api_comment_post',
   ]);
 }
 
-add_action('rest_api_init', 'register_api_photo_delete');
+add_action('rest_api_init', 'register_api_comment_post');
 
 
 ?>
