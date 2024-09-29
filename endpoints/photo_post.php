@@ -4,7 +4,7 @@ function api_photo_post($request) {
   $user = wp_get_current_user();
   $user_id = $user->ID;
 
-  if($user === 0) {
+  if($user_id === 0) {
     $response = new WP_Error('error', 'Usuário não possui permissão.', ['status' => 401]);
     return rest_ensure_response($response);
   }
@@ -28,7 +28,7 @@ function api_photo_post($request) {
     'meta_input' => [
       'idade' => $idade,
       'acessos' => 0,
-    ]
+    ],
   ];
 
   $post_id = wp_insert_post($response);
