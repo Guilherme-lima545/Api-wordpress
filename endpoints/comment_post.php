@@ -1,7 +1,6 @@
 <?php 
 
 function api_comment_post($request) {
-  $post_id = $request['id'];
   $user = wp_get_current_user();
   $user_id = $user->ID;
   
@@ -12,6 +11,7 @@ function api_comment_post($request) {
   }
 
   $comment = sanitize_text_field($request['comment']);
+  $post_id = $request['id'];
 
   if(empty($comment)) {
     $response = new WP_Error('error', 'Dados incompletos.', ['status' => 422]);

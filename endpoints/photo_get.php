@@ -87,7 +87,7 @@ function api_photos_get($request) {
 
   if($posts) {
     foreach ($posts as $post) {
-      $photos[] = photo_data($photos);
+      $photos[] = photo_data($post);
     }
   }
 
